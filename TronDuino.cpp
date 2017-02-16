@@ -84,21 +84,21 @@ int old_selection; // old selection
 char option_names[3][20];
 int cursor_size = 2;
 
-	int randomNum(){// Generate a ramdom number
-		int randomValue = 0;
-		int randomBit;
-		for(int i = 0; i <= 8; i++){
-			// Read a random value then take only the least significant bit
-			randomBit = analogRead(5)%2;
+int randomNum(){// Generate a ramdom number
+	int randomValue = 0;
+	int randomBit;
+	for(int i = 0; i <= 8; i++){
+		// Read a random value then take only the least significant bit
+		randomBit = analogRead(5)%2;
 
-			// Shift the previous bit over then add the new bit
-			randomValue = (randomValue << 1)+randomBit;
+		// Shift the previous bit over then add the new bit
+		randomValue = (randomValue << 1)+randomBit;
 
-			// Wait to allow for the analog value to change
-			delay(5);
-		}
-		return randomValue;
+		// Wait to allow for the analog value to change
+		delay(5);
 	}
+	return randomValue;
+}
 
 int move_bike (int direction, int bike, uint32_t bike_color) {
 	while (true) {
@@ -159,106 +159,106 @@ int move_bike (int direction, int bike, uint32_t bike_color) {
 			}
 		}
 
-	if (bike == 2) {
+		if (bike == 2) {
 
-		cursor_x = cursor_x2;
-		cursor_y = cursor_y2;
-		vertical = vertical_2;
-		horizontal = horizontal_2;
-		init_horiz = init_horiz_2;
-		init_vert = init_vert_2;
-		select = digitalRead(SEL_2);
+			cursor_x = cursor_x2;
+			cursor_y = cursor_y2;
+			vertical = vertical_2;
+			horizontal = horizontal_2;
+			init_horiz = init_horiz_2;
+			init_vert = init_vert_2;
+			select = digitalRead(SEL_2);
 
-		if (select != 1 && jump_counter_2 && storage_2 == 0) {
-			jump_counter_2 = 0;
-			storage_2 = 0;
-		}
-		if (select != 1) {
-			storage_2 += 1;
-		}
-		if (select == 1) {
-			storage_2 = 0;
-		}
-		if (!(jump_counter_2 < 6)) {
-			tft.fillRect(cursor_x2, cursor_y2, cursor_size, cursor_size, bike_color);
+			if (select != 1 && jump_counter_2 && storage_2 == 0) {
+				jump_counter_2 = 0;
+				storage_2 = 0;
+			}
+			if (select != 1) {
+				storage_2 += 1;
+			}
+			if (select == 1) {
+				storage_2 = 0;
+			}
+			if (!(jump_counter_2 < 6)) {
+				tft.fillRect(cursor_x2, cursor_y2, cursor_size, cursor_size, bike_color);
+			}
+
+			// Right
+			if (direction == 0) {
+				cursor_x2 = cursor_x2 + cursor_size;
+			}
+			// Down
+			if (direction == 1) {
+				cursor_y2 = cursor_y2 + cursor_size;
+			}
+			// Left
+			if (direction == 2) {
+				cursor_x2 = cursor_x2 - cursor_size;
+			}
+			// Up
+			if (direction == 3) {
+				cursor_y2 = cursor_y2 - cursor_size;
+			}
 		}
 
-		// Right
-		if (direction == 0) {
-			cursor_x2 = cursor_x2 + cursor_size;
-		}
-		// Down
-		if (direction == 1) {
-			cursor_y2 = cursor_y2 + cursor_size;
-		}
-		// Left
-		if (direction == 2) {
-			cursor_x2 = cursor_x2 - cursor_size;
-		}
-		// Up
-		if (direction == 3) {
-			cursor_y2 = cursor_y2 - cursor_size;
-		}
-	}
+		delay(speed+10);
 
-	delay(speed+10);
+		// HITS THE WALL
+		// return 5
+		if (cursor_x >= 125) {
+			return 5;
+		}
+		if (cursor_x <= 2) { /*******************************************************************************************************changed this from 0 */
+			return 5;
+		}
+		if (cursor_y <= 0) {
+			return 5;
+		}
+		if (cursor_y >= 160) {
+			return 5;
+		}
 
-	// HITS THE WALL
-	// return 5
-	if (cursor_x >= 125) {
-		return 5;
-	}
-	if (cursor_x <= 2) { /*******************************************************************************************************changed this from 0 */
-		return 5;
-	}
-	if (cursor_y <= 0) {
-		return 5;
-	}
-	if (cursor_y >= 160) {
-		return 5;
-	}
+		if (bike==1) {
+			jump_counter_1 += 1; // count up by one
+		}
+		if (bike==1) {
+			jump_counter_2 += 1; // count up by one
+		}
 
-	if (bike==1) {
-		jump_counter_1 += 1; // count up by one
-	}
-	if (bike==1) {
-		jump_counter_2 += 1; // count up by one
-	}
-
-	// STATIC POSITIONING
-	if (vertical <= init_vert+20 && vertical >= init_vert-20 && horizontal <= init_horiz+20 && horizontal >= init_horiz-20) {
-		return direction; // move in the same direction if joystick is static
-	}
-	// MOVE RIGHT
-	if (horizontal > init_horiz+15 && vertical > (1023-horizontal) && vertical < horizontal) {
-		// if direction is left, keep going left please
-		if (direction == 2) {
-			return direction;
+		// STATIC POSITIONING
+		if (vertical <= init_vert+20 && vertical >= init_vert-20 && horizontal <= init_horiz+20 && horizontal >= init_horiz-20) {
+			return direction; // move in the same direction if joystick is static
 		}
-		else {return 0;}
-	}
-	// MOVE DOWN
-	if (vertical > init_vert+15 && horizontal <= vertical && horizontal >= (1023-vertical) ) {
-		if (direction == 3) {
-			return direction;
+		// MOVE RIGHT
+		if (horizontal > init_horiz+15 && vertical > (1023-horizontal) && vertical < horizontal) {
+			// if direction is left, keep going left please
+			if (direction == 2) {
+				return direction;
+			}
+			else {return 0;}
 		}
-		else {return 1;}
-	}
-	// MOVE LEFT
-	if (horizontal < init_horiz-15 && vertical < (1023-horizontal) && vertical > horizontal) {
-		if (direction == 0) {
-			return direction;
+		// MOVE DOWN
+		if (vertical > init_vert+15 && horizontal <= vertical && horizontal >= (1023-vertical) ) {
+			if (direction == 3) {
+				return direction;
+			}
+			else {return 1;}
 		}
-		else {return 2;}
-	}
-	// MOVE UP
-	if (vertical < init_vert-15 && horizontal >= vertical && horizontal <= (1023-vertical)) {
-		if (direction == 1) {
-			return direction;
+		// MOVE LEFT
+		if (horizontal < init_horiz-15 && vertical < (1023-horizontal) && vertical > horizontal) {
+			if (direction == 0) {
+				return direction;
+			}
+			else {return 2;}
 		}
-		else {return 3;}
-	}
-	else {return direction;}
+		// MOVE UP
+		if (vertical < init_vert-15 && horizontal >= vertical && horizontal <= (1023-vertical)) {
+			if (direction == 1) {
+				return direction;
+			}
+			else {return 3;}
+		}
+		else {return direction;}
 	}
 }
 
@@ -267,73 +267,73 @@ int move_bike (int direction, int bike, uint32_t bike_color) {
 // using Faster line drawing functions
 void draw_grid(){
 
-  uint32_t grid_color = 0x005677;
-  for(int i=0; i<=128; i+=16){
+	uint32_t grid_color = 0x005677;
+	for(int i=0; i<=128; i+=16){
 		// vertical lines
 		tft.drawFastVLine(i, 0, 160, grid_color);
-  }
-  tft.drawFastVLine(127, 0, 160, grid_color);
-  for(int i=0; i<=160; i+=16){
+  	}
+	tft.drawFastVLine(127, 0, 160, grid_color);
+	for(int i=0; i<=160; i+=16){
 		// horizontal lines
 		tft.drawFastHLine(0, i, 128, grid_color);
-  }
-    tft.drawFastHLine(0, 159, 128, grid_color);
-
+	}
+	tft.drawFastHLine(0, 159, 128, grid_color);
 }
+
 
 int draw_bike_1() {
 
-    // initial values of the joystick
-    init_vert_1 = analogRead(VERT_1);
-    init_horiz_1 = analogRead(HORIZ_1);
+	// initial values of the joystick
+	init_vert_1 = analogRead(VERT_1);
+	init_horiz_1 = analogRead(HORIZ_1);
 
-    while(true) {
+	while(true) {
 
-        delay(500);
+        	delay(500);
 
-        cursor_x1 = 64; // start here so it can get to x=1, looks better... have to change rightmost boundaries then so you can't control off the screen
-        cursor_y1 = 40;
+        	cursor_x1 = 64; // start here so it can get to x=1, looks better... have to change rightmost boundaries then so you can't control off the screen
+        	cursor_y1 = 40;
 
-        while (true) {
+        	while (true) {
 
-            int vertical_1 = analogRead(VERT_1);
-            int horizontal_1 = analogRead(HORIZ_1);
+            		int vertical_1 = analogRead(VERT_1);
+            		int horizontal_1 = analogRead(HORIZ_1);
 
-            return 1;// Go down
-        }
-    }
+            		return 1;// Go down
+        	}
+    	}
 }
 
 int draw_bike_2() {
 
-    // initial values of the joystick
-    init_vert_2 = analogRead(VERT_2);
-    init_horiz_2 = analogRead(HORIZ_2);
+	// initial values of the joystick
+	init_vert_2 = analogRead(VERT_2);
+	init_horiz_2 = analogRead(HORIZ_2);
 
-    while(true) {
+	while(true) {
 
-        delay(500);
+        	delay(500);
 
-        cursor_x2 = 64;
-        cursor_y2 = 124;
+        	cursor_x2 = 64;
+        	cursor_y2 = 124;
 
-        while (true) {
+        	while (true) {
 
-            int vertical_2 = analogRead(VERT_2);
-            int horizontal_2 = analogRead(HORIZ_2);
+            		int vertical_2 = analogRead(VERT_2);
+           		int horizontal_2 = analogRead(HORIZ_2);
 
-           return 3;// Go up
-        }
-    }
+           		return 3;// Go up
+       		 }
+    	}
 }
 
 /********************************************************************/
 void update_color_selection(int bike){
 
 	// replace old selection
-    tft.drawRect(35+(20*old_selection),61+(37*bike),14,14,0x0000);
+    	tft.drawRect(35+(20*old_selection),61+(37*bike),14,14,0x0000);
 
-    // draw new selection
+    	// draw new selection
 	tft.drawRect(35+(20*selection),61+(37*bike),14,14,0xFFFF);
 
 }
@@ -371,34 +371,34 @@ void color_screen(){
 	//Bike 1
 	while(true){
 
-        int horizontal_1 = analogRead(HORIZ_1);   // will be 0-1023
+        	int horizontal_1 = analogRead(HORIZ_1);   // will be 0-1023
 
-        // selection changed
-        old_selection = selection;
+        	// selection changed
+        	old_selection = selection;
 
-        //If User moves cursor to right, increse selection, update cursor
-        if (horizontal_1 > horizontal_initial+30) {
+        	//If User moves cursor to right, increse selection, update cursor
+        	if (horizontal_1 > horizontal_initial+30) {
 			selection = selection + 1;
 			if (selection > 2) {
 				selection = 2;
-            }
+            		}
 			update_color_selection(0);
 			delay(250);
 		}
 
-        //If user moves cursor to left, decrease selection, update cursor
+        	//If user moves cursor to left, decrease selection, update cursor
 		else if (horizontal_1 < horizontal_initial-30) {
 			selection = selection - 1;
 			if (selection < 0) {
 				selection = 0;
-            }
-            update_color_selection(0);
-            delay(250);
+            		}
+            		update_color_selection(0);
+            		delay(250);
 		}
 
 		if (digitalRead(SEL_1)==0){
 			switch (selection) {
-				 case 0:
+				case 0:
 					bike_color_1 = 0xF81F;//Assign player 1 to first color
 					break;
 				case 1:
@@ -434,7 +434,7 @@ void color_screen(){
 					delay(200);
 				}
 
-                //If User moves cursor to left, decrease selection, update cursor
+                		//If User moves cursor to left, decrease selection, update cursor
 				else if (horizontal_1 < horizontal_initial-30) {
 					selection = selection - 1;
 					if (selection < 0) {
@@ -521,45 +521,45 @@ void speed_screen(){
 		//If user moves the cursor to the right, increase selection,
 		//Increase "how full" the display bar is
 		if (horizontal_1 > horizontal_initial+30) {
-				selection = selection + 1;
-				speed = speed - 10;
+			selection = selection + 1;
+			speed = speed - 10;
 
-				if (selection > 9) {
-					selection = 9;
-					speed = 0;
-				}
+			if (selection > 9) {
+				selection = 9;
+				speed = 0;
+			}
 
-				//Update Graphic Bar
-				tft.fillRect(14+(10*selection),66,10,28,0x07E0);
-				tft.fillRect(70,100,25,10,0x0000);
-				tft.setCursor(74,100);
-				tft.print(100-speed);
+			//Update Graphic Bar
+			tft.fillRect(14+(10*selection),66,10,28,0x07E0);
+			tft.fillRect(70,100,25,10,0x0000);
+			tft.setCursor(74,100);
+			tft.print(100-speed);
 
-				delay(50);
-
+			delay(50);
 
 		}
+		
 		//If user moves the cursor to the left, decrease selection,
 		//Decrease "how full" the display bar is
 		else if (horizontal_1 < horizontal_initial-30) {
-				selection = selection - 1;
-				speed = speed + 10;
+			selection = selection - 1;
+			speed = speed + 10;
 
-				if (selection < 0) {
-					selection = -1;
-					//If we set selection = 0, then some of the graphic is still displayed
-					//By setting selection = 0, speed is still "100", yet no graphic displayed
+			if (selection < 0) {
+				selection = -1;
+				//If we set selection = 0, then some of the graphic is still displayed
+				//By setting selection = 0, speed is still "100", yet no graphic displayed
 
-					speed = 100;
-				}
+				speed = 100;
+			}
 
-				//Update Graphic Bar
-				tft.fillRect(24+(10*selection),66,100-(10*selection+ 10),28,0x0000);
-				tft.fillRect(70,100,25,10,0x0000);
-				tft.setCursor(74,100);
-				tft.print(100-speed);
+			//Update Graphic Bar
+			tft.fillRect(24+(10*selection),66,100-(10*selection+ 10),28,0x0000);
+			tft.fillRect(70,100,25,10,0x0000);
+			tft.setCursor(74,100);
+			tft.print(100-speed);
 
-				delay(50);
+			delay(50);
 		}
 
 	}
@@ -567,8 +567,8 @@ void speed_screen(){
 }
 
 void print_names() {
-    tft.fillScreen(0); // clear screen with black
-    tft.setTextWrap(false); // no wrap
+	tft.fillScreen(0); // clear screen with black
+	tft.setTextWrap(false); // no wrap
 
 	//Print Logo
 
@@ -603,7 +603,7 @@ void print_names() {
 	//Fill Awkward Parrallelogram
 	int k;
 	for(k=0; k<= 9; k++){
-	tft.drawLine(44+k,37,56+k,49, 0x7777);
+		tft.drawLine(44+k,37,56+k,49, 0x7777);
 	}
 
 	//Draw Outlines
@@ -644,21 +644,22 @@ void print_names() {
 	tft.drawLine(110,49,86,25,0xF81F);
 
 
-    // start printing names
-    for (int i = 0; i <= 1; i++) {
-        tft.setCursor(35,i*32+72);
+	// start printing names
+	for (int i = 0; i <= 1; i++) {
+        	tft.setCursor(35,i*32+72);
 
-        if (i == 0) {
-            tft.setTextColor(0xF81F,0xFFFF);	//Start
-        }
-        else if (i == 1) {
-            tft.setTextColor(0x7777,0x0000);	//Options
-        }
+        	if (i == 0) {
+            		tft.setTextColor(0xF81F,0xFFFF);	//Start
+        	}
+		else if (i == 1) {
+            		tft.setTextColor(0x7777,0x0000);	//Options
+		}
 
-        tft.print(names[i]);
-        tft.print('\n');
-    }
+        	tft.print(names[i]);
+        	tft.print('\n');
+	}
 }
+
 
 void print_options() {
 
@@ -671,27 +672,27 @@ void print_options() {
 		tft.setCursor(25, i*30+30);
 
 		// Colour
-		 if (i == 0) {
-            tft.setTextColor(0xF81F,0xFFFF);
-        }
+	 	if (i == 0) {
+    			tft.setTextColor(0xF81F,0xFFFF);
+		}
 
-        // Speed
-        else if (i == 1) {
-            tft.setTextColor(0x7777,0x0000);
-        }
+		// Speed
+		else if (i == 1) {
+		    tft.setTextColor(0x7777,0x0000);
+		}
 
-        // Objects
-        else if (i == 2) {
-            tft.setTextColor(0x7777,0x0000);
-        }
+		// Objects
+		else if (i == 2) {
+		    tft.setTextColor(0x7777,0x0000);
+		}
 
-        //Back
-        else if (i == 3) {
-            tft.setTextColor(0x7777,0x0000);
-        }
+		//Back
+		else if (i == 3) {
+		    tft.setTextColor(0x7777,0x0000);
+		}
 
-        tft.print(option_names[i]);
-        tft.print('\n');
+		tft.print(option_names[i]);
+		tft.print('\n');
 	}
 
 	tft.setCursor(88,90);
@@ -804,29 +805,29 @@ int option_menu() {
 
 		//Moves cursor down, increases selection, and updates visuals
 		if (vertical_1 > vertical_initial+40) {
-        selection = selection + 1;
+			selection = selection + 1;
 
 			if (selection > 3) {
 				selection = 3;
 			}
-            else{
-			delay(200);
-            update_names_options();
+            		else{
+				delay(200);
+            			update_names_options();
 			}
-        }
+        	}
 
 		//Moves cursor up, decreases selection, and updates visuals
 		else if (vertical_1 < vertical_initial-40) {
-        selection = selection - 1;
+        		selection = selection - 1;
 
-            if (selection < 0) {
+            		if (selection < 0) {
 				selection = 0;
-            }
-            else{
-            delay(200);
-            update_names_options();
+            		}
+            		else{
+            			delay(200);
+            			update_names_options();
 			}
-        }
+        	}
                 //Borders change colour
                 color++;
 	}
@@ -835,97 +836,96 @@ int option_menu() {
 
 void start_menu() {
 	//Start Menu Options
-    strcpy(names[0], "Start Game");
-    strcpy(names[1], " Options  ");
+	strcpy(names[0], "Start Game");
+	strcpy(names[1], " Options  ");
 
 	//Initalize
-    selection = 0;
-    print_names();
-    delay(250);
-    uint32_t color = 0x00FF66;
+	selection = 0;
+	print_names();
+	delay(250);
+	uint32_t color = 0x00FF66;
 
 
 
-    while(true) {
+	while(true) {
 
 
 
-			//Check if user has made a selection
-            if (digitalRead(SEL_1) == 0) {
+		//Check if user has made a selection
+		if (digitalRead(SEL_1) == 0) {
 
 
-							int timer = 0;
+			int timer = 0;
 
-							//Activate one player mode
-							while(digitalRead(SEL_1) == 0 && timer < 1001){
-								timer = timer + 1;
-								delay(1);
-							}
-							if(timer > 999){
-								bot_mode = 1;
-							}
-							else{
-								bot_mode = 0;
-							}
-
-				switch (selection){
-					//If user selects "start game", terminate start menu
-					case 0:
-						return;
-
-					//If user selects "options" display option menu
-					case 1:
-						option_menu();
-
-
-					//Upon exiting the option menu, reset the start menu
-						print_names();
-						delay(250);
-						selection = 0;
-						break;
-				}
-
+			//Activate one player mode
+			while(digitalRead(SEL_1) == 0 && timer < 1001){
+				timer = timer + 1;
+				delay(1);
+			}
+			if(timer > 999){
+				bot_mode = 1;
+			}
+			else{
+				bot_mode = 0;
 			}
 
-			//Screen Borders (change colour over time)
-            tft.drawRect(0,0,128,160,color);
-            tft.drawRect(5,5,118,150,color+1000);
+			switch (selection){
+				//If user selects "start game", terminate start menu
+				case 0:
+					return;
 
-            /** use drawRect for a border
+				//If user selects "options" display option menu
+				case 1:
+					option_menu();
+
+					//Upon exiting the option menu, reset the start menu
+					print_names();
+					delay(250);
+					selection = 0;
+					break;
+			}
+
+		}
+
+		//Screen Borders (change colour over time)
+		tft.drawRect(0,0,128,160,color);
+		tft.drawRect(5,5,118,150,color+1000);
+
+		/** use drawRect for a border
                 and setTextSize for title */
 
-				//Read Input values from 1st analog stick
+		//Read Input values from 1st analog stick
                 vertical_1 = analogRead(VERT_1);      // will be 0-1023
                 horizontal_1 = analogRead(HORIZ_1);   // will be 0-1023
 
                 // selection changed
                 old_selection = selection;
 
-				//Move cursor down, increase selection, and update visuals
+		//Move cursor down, increase selection, and update visuals
                 if (vertical_1 > vertical_initial+30) {
-                    selection = selection + 1;
-                    if (selection > 1) {
-                        selection = 1;
-                    }
-                    else{
-					update_names();
-					}
+			selection = selection + 1;
+                    	if (selection > 1) {
+                        	selection = 1;
+                    	}
+                    	else{
+				update_names();
+			}
                 }
 
                 //Move cursor up, decrease selection, and update visuals
                 else if (vertical_1 < vertical_initial-30) {
-					selection = selection - 1;
-					if (selection < 0) {
-						selection = 0;
-					}
-					else{
-                    update_names();
-					}
+			selection = selection - 1;
+			if (selection < 0) {
+				selection = 0;
+			}
+			else{
+                    		update_names();
+			}
                 }
 
-                color++;
-            }
-    return;
+		color++;
+	}
+	return;
 }
 
 /********************************************************************/
@@ -933,73 +933,74 @@ void start_menu() {
 int location[4][80] = {};//Two dimentional array holding 4 columns and 80 rows
 
 int check_for_crash(int x_in, int y_in, int player){
-  //These variables are used to keep track of a cursor on a screen
-  //An array of bits is created to track locations where no cursor has been yet
-  x_in = x_in/2;
-  y_in = y_in/2;
+	//These variables are used to keep track of a cursor on a screen
+	//An array of bits is created to track locations where no cursor has been yet
+	x_in = x_in/2;
+	y_in = y_in/2;
 
-  typedef struct {
-    int row;//Track the y position; 0-80
-    int column;//Track x position; 0-3
-    int position;//Where the x is located within column
-  } cursor;
+	typedef struct {
+		int row;//Track the y position; 0-80
+		int column;//Track x position; 0-3
+		int position;//Where the x is located within column
+	} cursor;
 
-  cursor Cursor; //Initialize two cursors
+	cursor Cursor; //Initialize two cursors
 
-  /*
-    When a cursor moves the x,y coordinates must be checked against all previous
-  values of x,y coordinates. This process becomes slower as more coordinates are
-  added. We know how many possible locations the cursor could be since it is
-  constrained to the edges of the screen. Initializing a two dimentional array
-  (a matrix) allows location comparison to be completed in O(1) since only one
-  value is compared regardless of how many locations the cursors have already
-  been at. The array initially contains zeros so the value of zero is treated as
-  a location that the cursor has not yet been located. To reduce memory, one
-  location in the matrix is represented with only one bit. This is done by storing
-  sequences of 16 locations in  rows as one integer.
-    The pros of this method of location comparisons is that it is very fast.
-    The downside of this method is that it requires a fairly significant chunk of
-  memory regardless of how many locations the cursor has been:
-      16 bits/row * 80 rows/column * 4 columns = 5120 bits = 640 bytes
-  This much memory is however well within the capacity of an Arduino
-  */
+	/*
+	When a cursor moves the x,y coordinates must be checked against all previous
+	values of x,y coordinates. This process becomes slower as more coordinates are
+	added. We know how many possible locations the cursor could be since it is
+	constrained to the edges of the screen. Initializing a two dimentional array
+	(a matrix) allows location comparison to be completed in O(1) since only one
+	value is compared regardless of how many locations the cursors have already
+	been at. The array initially contains zeros so the value of zero is treated as
+	a location that the cursor has not yet been located. To reduce memory, one
+	location in the matrix is represented with only one bit. This is done by storing
+	sequences of 16 locations in  rows as one integer.
+	The pros of this method of location comparisons is that it is very fast.
+	The downside of this method is that it requires a fairly significant chunk of
+	memory regardless of how many locations the cursor has been:
+	16 bits/row * 80 rows/column * 4 columns = 5120 bits = 640 bytes
+	This much memory is however well within the capacity of an Arduino
+	*/
 
-  //Find location in matrix
-    //Given a x location from 0 to 64 find the column in question
-  Cursor.column = x_in/16;
-    //Using the x location, find the position within the column and create a value
-    //to represent it
-  Cursor.position = 1 << (x_in%16);
-    //Given a y location from 0 to 80 the row is given by that value
-  Cursor.row = y_in;
-  //Check value at that location
-    //A simple bitwise or operation on the whole row value evaluates to one if
-    //there is a collision otherwise it evaluates to 0;
-    //If value is one a collision has occured: handle event
-      //Return a value that represents a collision
-  //If value is zero update value: continue
-    //A bitwise and is used to update the value of the whole row
-    //Return a value representing no collision
+	//Find location in matrix
+	//Given a x location from 0 to 64 find the column in question
+	Cursor.column = x_in/16;
+	//Using the x location, find the position within the column and create a value
+	//to represent it
+	Cursor.position = 1 << (x_in%16);
+	//Given a y location from 0 to 80 the row is given by that value
+	Cursor.row = y_in;
+	
+	//Check value at that location
+	//A simple bitwise or operation on the whole row value evaluates to one if
+	//there is a collision otherwise it evaluates to 0;
+	//If value is one a collision has occured: handle event
+	//Return a value that represents a collision
+	//If value is zero update value: continue
+	//A bitwise and is used to update the value of the whole row
+	//Return a value representing no collision
 
-  if(location[Cursor.column][Cursor.row] & Cursor.position){//Collision
-    //return collison value (4 for player 1, 5 for player 2);
-    Serial.println("Crash");
-    //Reset the array to {0}
-    for(int i=0; i<80; i++){
-      for(int j=0; j<4; j++){
-        location[j][i] = 0;
-      }
-    }
-    return 3 + player;
-  }
-  else{
-    // Update matrix
-    location[Cursor.column][Cursor.row] =
-    (location[Cursor.column][Cursor.row] | Cursor.position);
-    //~ Serial.println(Cursor.position, BIN);
-    //return pass value;
-    return 0;
-  }
+	if(location[Cursor.column][Cursor.row] & Cursor.position){//Collision
+		//return collison value (4 for player 1, 5 for player 2);
+		Serial.println("Crash");
+		//Reset the array to {0}
+		for(int i=0; i<80; i++){
+			for(int j=0; j<4; j++){
+				location[j][i] = 0;
+			}
+		}
+    		return 3 + player;
+	}
+  	else{
+    		// Update matrix
+    		location[Cursor.column][Cursor.row] =
+    			(location[Cursor.column][Cursor.row] | Cursor.position);
+    		//~ Serial.println(Cursor.position, BIN);
+    		//return pass value;
+    		return 0;
+  	}
 }
 
 void announce_winner (int winner, uint32_t linecolor) {
@@ -1051,7 +1052,7 @@ void death_animation_1(int player) { // Crashing Animation
 		tft.drawFastVLine(rando,0,i,0xF800);
 		if (i==18) {
 			tft.setCursor(30, 140);
-			tft	.print("C");
+			tft.print("C");
 		}
 		if (i==36) {
 			tft.setCursor(45, 140);
@@ -1099,6 +1100,7 @@ void death_animation_2 (int player) {
 	}
 }
 
+
 // checks HOW the player lost
 int game_over_check(int bike_mode, /**PlayerPos Player_data*/ int player) {
 
@@ -1107,7 +1109,7 @@ int game_over_check(int bike_mode, /**PlayerPos Player_data*/ int player) {
 		return 4;
 	}
 	else if (bike_mode == 5) {
-    //Reset the array to {0}
+	//Reset the array to {0}
 		for(int i=0; i<80; i++){
 			for(int j=0; j<4; j++){
 				location[j][i] = 0;
@@ -1279,190 +1281,191 @@ int distances[4];
 
 //Define a struct to keep track of values for the "bot"
 typedef struct bot {
-  int x;
-  int y;
-  int direction;
-  int position;
-  int row;
-  int column;
+	int x;
+	int y;
+	int direction;
+	int position;
+	int row;
+	int column;
 }bot;
 
 //Initialize a bot
 bot Bot;
 bot create_bot(){
-  //Store initial values
-  Bot.x = 64;
-  Bot.y = 120;
-  Bot.direction = 1;
-  return Bot;
+	//Store initial values
+	Bot.x = 64;
+	Bot.y = 120;
+	Bot.direction = 1;
+	return Bot;
 }
 
 //Calculate the distances to the nearest object on all four sides of the bot
 void dist_to_wall(bot Bot){
 
-  int dist_up     = 0;
-  int dist_left   = 0;
-  int dist_right  = 0;
-  int dist_down   = 0;
-  Bot.column = Bot.x /32;
-  Bot.row = Bot.y/2;
-  Bot.position = 1 << ((Bot.x/2)%16);
+	int dist_up     = 0;
+	int dist_left   = 0;
+	int dist_right  = 0;
+	int dist_down   = 0;
+	Bot.column = Bot.x /32;
+	Bot.row = Bot.y/2;
+	Bot.position = 1 << ((Bot.x/2)%16);
 
 
-  //up
-  //Calculate the distance above the bot's location
-  while(!(location[Bot.column][Bot.row+dist_up] & Bot.position) &&
-        Bot.row-dist_up > 0){
-    dist_up += 1;
-  }
+	//up
+	//Calculate the distance above the bot's location
+	while(!(location[Bot.column][Bot.row+dist_up] & Bot.position) &&
+	Bot.row-dist_up > 0){
+		dist_up += 1;
+	}
 
-  //Calculate the distance below the bot's location
-  while(!(location[Bot.column][Bot.row+dist_down] & Bot.position) &&
-        Bot.row+dist_down < 80){
-        dist_down += 1;
-  }
+	//Calculate the distance below the bot's location
+	while(!(location[Bot.column][Bot.row+dist_down] & Bot.position) &&
+	Bot.row+dist_down < 80){
+		dist_down += 1;
+	}
 
-  //Calculate the distance to the left of the bot's location
-  while(!(location[(Bot.x/2-dist_left)/16][Bot.row] & 1<<((Bot.position+dist_left)%16)) &&
-        (Bot.x-dist_left > 0)){
-    dist_left += 1;
-  }
+	//Calculate the distance to the left of the bot's location
+	while(!(location[(Bot.x/2-dist_left)/16][Bot.row] & 1<<((Bot.position+dist_left)%16)) &&
+	(Bot.x-dist_left > 0)){
+		dist_left += 1;
+	}
 
-  //Calculate the distance to the right of the bot's location
-  while(!(location[(Bot.x/2+dist_right)/16][Bot.row] & 1<<((Bot.position-dist_right)%16)) &&
+  	//Calculate the distance to the right of the bot's location
+  	while(!(location[(Bot.x/2+dist_right)/16][Bot.row] & 1<<((Bot.position-dist_right)%16)) &&
         (Bot.x+dist_right < 128)){
-    dist_right += 1;
-  }
+    		dist_right += 1;
+  	}
 
-  //Store the locations
-  distances[2] = dist_right;
-  distances[3] = dist_down;
-  distances[0] = dist_left;
-  distances[1] = dist_up;
+  	//Store the locations
+  	distances[2] = dist_right;
+  	distances[3] = dist_down;
+  	distances[0] = dist_left;
+  	distances[1] = dist_up;
 }
 
 //move the players cursor
 //Input value represents: 0: left, 1:up, 2:rigth, 3: down
 int move(int direction){
-  int next_direction = direction;
-  vertical_1 = analogRead(VERT_1);
-  horizontal_1 = analogRead(HORIZ_1);
+  	int next_direction = direction;
+  	vertical_1 = analogRead(VERT_1);
+  	horizontal_1 = analogRead(HORIZ_1);
 
-  // If the joystick has been moved change the directin of the players motion
-  //to represent which way the player is trying to move
-  if(abs(vertical_1 - vertical_initial) > 30 || abs(horizontal_1 - horizontal_initial) > 30){
-    vertical_1 = vertical_1 - vertical_initial;
-    horizontal_1 = horizontal_1 - horizontal_initial;
+  	// If the joystick has been moved change the directin of the players motion
+  	//to represent which way the player is trying to move
+  	if(abs(vertical_1 - vertical_initial) > 30 || abs(horizontal_1 - horizontal_initial) > 30){
+    		vertical_1 = vertical_1 - vertical_initial;
+    		horizontal_1 = horizontal_1 - horizontal_initial;
 
-    if(abs(vertical_1) > abs(horizontal_1)){ //move verticaly
-      if(direction%2){
-        cursor_y1 += (direction-2)*2;
-      }
-      else{
-        cursor_y1 += (cursor_size)*vertical_1/abs(vertical_1);
-        next_direction = 2 + vertical_1/abs(vertical_1);
-      }
+    		if(abs(vertical_1) > abs(horizontal_1)){ //move verticaly
+      			if(direction%2){
+        			cursor_y1 += (direction-2)*2;
+      			}
+      			else{
+        			cursor_y1 += (cursor_size)*vertical_1/abs(vertical_1);
+        			next_direction = 2 + vertical_1/abs(vertical_1);
+      			}
 
-    }
-    else{//move horizontaly
-      if((direction+1)%2){
-        cursor_x1 += (direction-1)*2;
-      }
-      else{
-        cursor_x1 += (cursor_size)*horizontal_1/abs(horizontal_1);
-        next_direction = 1 + horizontal_1/abs(horizontal_1);
-      }
-    }
+    		}
+   		else{//move horizontaly
+			if((direction+1)%2){
+				cursor_x1 += (direction-1)*2;
+			}
+			else{
+				cursor_x1 += (cursor_size)*horizontal_1/abs(horizontal_1);
+				next_direction = 1 + horizontal_1/abs(horizontal_1);
+			}
+		}
 
-  }
-  //Continue to move in the same direction
-  else{
-    if(direction%2){//check for 1 or 3
-      cursor_y1 += (cursor_size)*(direction-2)*vertical_1/abs(vertical_1);
-    }
-    else{
-      cursor_x1 += (cursor_size)*(direction-1)*horizontal_1/abs(horizontal_1);
-    }
-  }
-  //Draw the curor image
-  tft.fillRect(cursor_x1, cursor_y1, cursor_size, cursor_size, bike_color_1);
-  delay(speed); // speed of bike (explained previously)
-  return next_direction;
+  	}
+  	//Continue to move in the same direction
+  	else{
+    		if(direction%2){//check for 1 or 3
+      			cursor_y1 += (cursor_size)*(direction-2)*vertical_1/abs(vertical_1);
+    		}
+    		else{
+      			cursor_x1 += (cursor_size)*(direction-1)*horizontal_1/abs(horizontal_1);
+		}
+	}
+	//Draw the curor image
+  	tft.fillRect(cursor_x1, cursor_y1, cursor_size, cursor_size, bike_color_1);
+  	delay(speed); // speed of bike (explained previously)
+  	return next_direction;
 }
 
 //Determine what value in the distances array is the largest and return it
 int decide(){
-  int move_to = 0;
-  for(int i = 0; i < 4; i++){
-    if(distances[i] > distances[move_to]){
-      move_to = i;
-      // Serial.print(distances[i]);
-    }
-  }
-  return move_to;
+	int move_to = 0;
+	for(int i = 0; i < 4; i++){
+		if(distances[i] > distances[move_to]){
+			move_to = i;
+			// Serial.print(distances[i]);
+    		}
+  	}
+	return move_to;
 }
 
 void move_bot(int direction_input){//0: left, 1:up, 2:right, 3:down
-  Bot.x = Bot.x + 2*((direction_input-1)%2);
-  Bot.y = Bot.y + 2*((direction_input-2)%2);
+	Bot.x = Bot.x + 2*((direction_input-1)%2);
+	Bot.y = Bot.y + 2*((direction_input-2)%2);
 }
 
 //Frame for the "secret" one player mode
 void Tron(){
-  //Reset value
-  bot_mode = !bot_mode;
+	//Reset value
+	bot_mode = !bot_mode;
 
-  //Set/reset the cursor values
-  cursor_x1 = 64;
-  cursor_y1 = 32;
+	//Set/reset the cursor values
+	cursor_x1 = 64;
+	cursor_y1 = 32;
 
-  //Define the direction for the player to move
-  int direction = 1;
+	//Define the direction for the player to move
+	int direction = 1;
 
-  //Initialize a counter to randomize the motion of the bot
-  int counter=0;
+	//Initialize a counter to randomize the motion of the bot
+	int counter=0;
 
-  //Initialize a counter to determine when the bot will turn
-  int bot_counter = -3;
+	//Initialize a counter to determine when the bot will turn
+	int bot_counter = -3;
 
-  //determinethe next course of action for the bot
-  int next_direction = direction;
+	//determinethe next course of action for the bot
+	int next_direction = direction;
 
-  //Initialize the "bot"
-  Bot = create_bot();
+	//Initialize the "bot"
+	Bot = create_bot();
 
-  //Set a value to determine when a crash has occured
-  int crash_status = 0;//0: no crash, 4: player crash, 5: bot crash
+	//Set a value to determine when a crash has occured
+	int crash_status = 0;//0: no crash, 4: player crash, 5: bot crash
 
-  //Draw scene
-  tft.fillScreen(0x000000);
-  draw_grid();
-  //Game loop
-  while(!crash_status){
-    dist_to_wall(Bot);
-    direction = move_bike(direction,1,bike_color_1);
-    Serial.print("direction: ");Serial.println(direction);
-    //Draw the bot
-    tft.fillRect(Bot.x, Bot.y, cursor_size, cursor_size, bike_color_2);
-    if (jump_counter_1 >= 6) {
+	//Draw scene
+	tft.fillScreen(0x000000);
+	draw_grid();
+	//Game loop
+	while(!crash_status){
+		dist_to_wall(Bot);
+    		direction = move_bike(direction,1,bike_color_1);
+    		Serial.print("direction: ");Serial.println(direction);
+    		//Draw the bot
+    		tft.fillRect(Bot.x, Bot.y, cursor_size, cursor_size, bike_color_2);
+    		if (jump_counter_1 >= 6) {
 			// Check for collision
 			crash_status = check_for_crash(cursor_x1, cursor_y1, 1) +
 			check_for_crash(Bot.x, Bot.y, 2);
 		}
-    //~ next_direction = decide();
-    if(bot_counter>((randomNum())%5)){
-      next_direction = decide();
-      if(next_direction != (Bot.direction-2)%4){
-        Bot.direction = next_direction;
-      }
-      bot_counter = 0 ;
-      counter = (cursor_x1*cursor_y1*direction)%20;
-    }
-    bot_counter++;
-    move_bot(Bot.direction);
+		
+    		//~ next_direction = decide();
+    		if(bot_counter>((randomNum())%5)){
+      			next_direction = decide();
+			if(next_direction != (Bot.direction-2)%4){
+       				Bot.direction = next_direction;
+      			}
+      			bot_counter = 0 ;
+      			counter = (cursor_x1*cursor_y1*direction)%20;
+    		}
+    		bot_counter++;
+    		move_bot(Bot.direction);
 
-    //Ensure both bot and player are on the screen
-    if(cursor_x1 <0 || cursor_x1 > 128 || cursor_y1 <0 || cursor_y1 > 160){
+    		//Ensure both bot and player are on the screen
+    		if(cursor_x1 <0 || cursor_x1 > 128 || cursor_y1 <0 || cursor_y1 > 160){
 			cursor_x1 = 64;
 			cursor_y1 = 32;
 			Bot = create_bot();
@@ -1493,7 +1496,7 @@ void Tron(){
 			death_animation_1(crash_status);
 			break;
 		}
-  }
+	}
 }
 
 /********************************************************************/
@@ -1529,14 +1532,14 @@ int main() {
 
 	//Display the Start Menu to the User
 	start_menu();
-  if(bot_mode){
-    while(true){
+  	if(bot_mode){
+    		while(true){
 			jump_counter_1 = 6;
-      Tron(); // play against the bot
-      start_menu();
-      if(!bot_mode){break;}
-    }
-  }
+      			Tron(); // play against the bot
+      			start_menu();
+      			if(!bot_mode){break;}
+    		}
+  	}
 
 	//Define inital states of Bikes
 	int collision = 0;
@@ -1633,11 +1636,11 @@ int main() {
 		 // game_over_check will assign 4 or 5, depending on how the bike has crashed
 		 int game_over_1 = game_over_check(bike_mode_1, /*Player1,*/ 1);
 		 	if (game_over_1 == 4 || game_over_1 == 5) {
-			announce_winner(2, bike_color_2);
-			tft.setTextSize(1);
+				announce_winner(2, bike_color_2);
+				tft.setTextSize(1);
 
-			delay(1000);
-			break;
+				delay(1000);
+				break;
 			}
 
 		 /** CHANGED THE ORDER HERE SO BOTH DEATH ANIMATIONS DON'T PLAY SIMULTANEOUSLY */
