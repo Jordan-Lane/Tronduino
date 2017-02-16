@@ -1,7 +1,7 @@
 /**
-   Mark Griffith      ccid:mgriffit    Sec:A1
+   Mark Griffith      			ccid:mgriffit    		 Sec:A1
    Jordan Lane				ccid:jlane			 Sec:A2
-   Brad Ofrim				  ccid:ofrim			 Sec:A2  
+   Brad Ofrim				ccid:ofrim			 Sec:A2  
 */
 
 #include <Arduino.h>
